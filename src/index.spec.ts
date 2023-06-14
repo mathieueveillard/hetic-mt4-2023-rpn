@@ -1,9 +1,20 @@
-import rpn from ".";
+import rpn, { isBinaryOperator } from ".";
+
+describe("Test of isBinaryOperator()", () => {
+  test("", () => {
+    expect(isBinaryOperator("+")).toEqual(true);
+  });
+
+  test("", () => {
+    expect(isBinaryOperator("NEG")).toEqual(false);
+  });
+});
 
 describe("Unary operators", () => {
   test("Negation", () => {
     expect(rpn([1, "NEG"])).toEqual(-1);
   });
+
   test("[Triangulation] Negation", () => {
     expect(rpn([2, "NEG"])).toEqual(-2);
   });
@@ -49,4 +60,12 @@ describe("Binary operators", () => {
       expect(() => rpn([1, 0, "MOD"])).toThrowError("Division by 0.");
     });
   });
+});
+
+describe("Complex operations", () => {
+  test("", () => {
+    expect(rpn([1, 1, 1, "+", "+"])).toEqual(3);
+  });
+
+  // expect(rpn([1, 1, "+", 1, "+"])).toEqual(3);
 });

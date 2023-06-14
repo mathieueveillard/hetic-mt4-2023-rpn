@@ -16,12 +16,18 @@ type UnaryOperation = (operand: Operand) => number;
 
 type BinaryOperation = (first: Operand, second: Operand) => number;
 
-const isUnaryOperator = (token: Token): token is UnaryOperator => {
+type Stack = Operand[];
+
+export const isUnaryOperator = (token: Token): token is UnaryOperator => {
   return UNARY_OPERATORS.includes(token as UnaryOperator);
 };
 
-const isBinaryOperator = (token: Token): token is BinaryOperator => {
+export const isBinaryOperator = (token: Token): token is BinaryOperator => {
   return BINARY_OPERATORS.includes(token as BinaryOperator);
+};
+
+const isOperand = (token: Token): token is Operand => {
+  return !isUnaryOperator(token) && !isBinaryOperator(token);
 };
 
 const UNARY_OPERATIONS: Record<UnaryOperator, UnaryOperation> = {
@@ -48,17 +54,34 @@ const validateDividerIsNotNull = (divider: Operand): void => {
   }
 };
 
-const rpn = (expression: Token[]): number => {
-  const token = expression[1];
-  if (isUnaryOperator(token)) {
-    // @ts-ignore
-    return UNARY_OPERATIONS[token](expression[0]);
+const recursiveRpn = (stack: Stack, expression: Token[]): number => {
+  if (expression.length === 0) {
+    return stack[0];
   }
-  const nextToken = expression[2];
-  if (isBinaryOperator(nextToken)) {
-    // @ts-ignore
-    return BINARY_OPERATIONS[nextToken](expression[0], expression[1]);
+
+  const [token, ...remainingExpression] = expression;
+
+  if (isOperand(token)) {
+    const nextStack = [...stack, token];
+    return recursiveRpn(nextStack, remainingExpression);
+  }
+
+  if (isUnaryOperator(token)) {
+    const operand = stack.pop();
+    const result = UNARY_OPERATIONS[token](operand);
+    const nextStack = [...stack, result];
+    return recursiveRpn(nextStack, remainingExpression);
+  }
+
+  if (isBinaryOperator(token)) {
+    const secondOperand = stack.pop();
+    const firstOperand = stack.pop();
+    const result = BINARY_OPERATIONS[token](firstOperand, secondOperand);
+    const nextStack = [...stack, result];
+    return recursiveRpn(nextStack, remainingExpression);
   }
 };
+
+const rpn = (expression: Token[]): number => recursiveRpn([], expression);
 
 export default rpn;
