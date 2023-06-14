@@ -3,6 +3,7 @@ export type Stack<T> = {
   pop: (n?: number) => [Stack<T>, T[]];
   peek: () => T;
   asArray: () => T[];
+  length: () => number;
 };
 
 const createStack = <T>(values: T[] = []): Stack<T> => {
@@ -15,24 +16,23 @@ const createStack = <T>(values: T[] = []): Stack<T> => {
       return [nextStack, [value]];
     }
 
-    if (n === 2) {
-      const [intermediaryStack, [lastValue]] = pop(1);
-      const [nextStack, [antepenultimate]] = intermediaryStack.pop(1);
-      return [nextStack, [antepenultimate, lastValue]];
-    }
-
-    // Après la pause
+    const [intermediaryStack, [lastValue]] = pop(1);
+    const [nextStack, previousValues] = intermediaryStack.pop(n - 1);
+    return [nextStack, [...previousValues, lastValue]];
   };
 
   const peek = (): T => values[values.length - 1];
 
   const asArray = () => values;
 
+  const length = () => values.length;
+
   return {
     push,
     pop,
     peek,
     asArray,
+    length,
   };
 };
 

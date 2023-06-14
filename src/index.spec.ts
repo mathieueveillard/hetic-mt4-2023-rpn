@@ -1,14 +1,4 @@
-import rpn, { isBinaryOperator } from ".";
-
-describe("Test of isBinaryOperator()", () => {
-  test("", () => {
-    expect(isBinaryOperator("+")).toEqual(true);
-  });
-
-  test("", () => {
-    expect(isBinaryOperator("NEG")).toEqual(false);
-  });
-});
+import rpn from ".";
 
 describe("Unary operators", () => {
   test("Negation", () => {
@@ -62,10 +52,30 @@ describe("Binary operators", () => {
   });
 });
 
-describe("Complex operations", () => {
-  test("", () => {
+describe("Many operations", () => {
+  test("Many operations", () => {
     expect(rpn([1, 1, 1, "+", "+"])).toEqual(3);
   });
 
-  // expect(rpn([1, 1, "+", 1, "+"])).toEqual(3);
+  test("[Control]", () => {
+    expect(rpn([1, 1, "+", 1, "+"])).toEqual(3);
+  });
+
+  test("[Control]", () => {
+    expect(rpn([3, 1, "NEG", "+", 4, 4, "*", "-"])).toEqual(-14);
+  });
+
+  describe("", () => {
+    test("Not enough operands (unary operators)", () => {
+      expect(() => rpn(["NEG"])).toThrowError("Not enough operands");
+    });
+
+    test("Not enough operands (binary operators)", () => {
+      expect(() => rpn([1, "+"])).toThrowError("Not enough operands");
+    });
+
+    test("Too many operands", () => {
+      expect(() => rpn([1, 1, 1, "+"])).toThrowError("Not a valid expression");
+    });
+  });
 });

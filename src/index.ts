@@ -21,11 +21,9 @@ type BinaryOperation = (first: Operand, second: Operand) => number;
 
 type Stack = GenericStack<Operand>;
 
-export const isUnaryOperator = (token: Token): token is UnaryOperator =>
-  UNARY_OPERATORS.includes(token as UnaryOperator);
+const isUnaryOperator = (token: Token): token is UnaryOperator => UNARY_OPERATORS.includes(token as UnaryOperator);
 
-export const isBinaryOperator = (token: Token): token is BinaryOperator =>
-  BINARY_OPERATORS.includes(token as BinaryOperator);
+const isBinaryOperator = (token: Token): token is BinaryOperator => BINARY_OPERATORS.includes(token as BinaryOperator);
 
 const isOperand = (token: Token): token is Operand => !isUnaryOperator(token) && !isBinaryOperator(token);
 
@@ -54,12 +52,18 @@ const validateDividerIsNotNull = (divider: Operand): void => {
 };
 
 const handleUnaryOperation = (stack: Stack, operator: UnaryOperator): Stack => {
+  if (stack.length() < 1) {
+    throw Error("Not enough operands");
+  }
   const [nextStack, [operand]] = stack.pop();
   const result = UNARY_OPERATIONS[operator](operand);
   return nextStack.push(result);
 };
 
 const handleBinaryOperation = (stack: Stack, operator: BinaryOperator): Stack => {
+  if (stack.length() < 2) {
+    throw Error("Not enough operands");
+  }
   const [nextStack, [firstOperand, secondOperand]] = stack.pop(2);
   const result = BINARY_OPERATIONS[operator](firstOperand, secondOperand);
   return nextStack.push(result);
@@ -67,6 +71,9 @@ const handleBinaryOperation = (stack: Stack, operator: BinaryOperator): Stack =>
 
 const recursiveRpn = (stack: Stack, expression: Token[]): number => {
   if (expression.length === 0) {
+    if (stack.length() > 1) {
+      throw "Not a valid expression";
+    }
     return stack.peek();
   }
 
